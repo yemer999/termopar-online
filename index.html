@@ -16,23 +16,20 @@
   <p id="status" class="info">Cargando...</p>
 
   <script>
-    // ⚠️ REEMPLAZÁ esto con el mismo thingName que pusiste en el ESP32
-    const thingName = "miTermocupla2024";
-    const dweetURL = "https://dweet.io/get/latest/dweet/for/" + thingName;
+    // ⚠️ URL pública de tu bin (agregale /latest al final)
+    const binURL = "https://api.jsonbin.io/v3/b/TU_BIN_ID/latest";
 
     function actualizar() {
-      fetch(dweetURL)
+      fetch(binURL)
         .then(res => res.json())
         .then(data => {
-          if (data.this === "succeeded" && data.with.length > 0) {
-            const temp = data.with[0].content.temperatura;
-            if (typeof temp === 'number') {
-              document.getElementById('tempDisplay').innerText = temp.toFixed(1) + " °C";
-              document.getElementById('status').innerText = "Actualizado: " + new Date().toLocaleTimeString();
-              return;
-            }
+          const temp = data.record.temperatura;
+          if (typeof temp === 'number') {
+            document.getElementById('tempDisplay').innerText = temp.toFixed(1) + " °C";
+            document.getElementById('status').innerText = "Actualizado: " + new Date().toLocaleTimeString();
+          } else {
+            throw new Error("Formato inválido");
           }
-          throw new Error("Dato no disponible");
         })
         .catch(() => {
           document.getElementById('tempDisplay').innerText = "--.- °C";
@@ -41,7 +38,7 @@
     }
 
     actualizar();
-    setInterval(actualizar, 15000); // actualiza cada 15 segundos
+    setInterval(actualizar, 15000);
   </script>
 </body>
 </html>
