@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temperatura en vivo</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 12%; }
+    .temp { font-size: 6em; color: #e67e22; }
+    .info { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>🌡️ Temperatura del termopar</h1>
+  <div id="tempDisplay" class="temp">--.- °C</div>
+  <p id="status" class="info">Cargando...</p>
+
+  <script>
+    // ⚠️ REEMPLAZÁ esto con el mismo thingName que pusiste en el ESP32
+    const thingName = "miTermocupla2024";
+    const dweetURL = "https://dweet.io/get/latest/dweet/for/" + thingName;
+
+    function actualizar() {
+      fetch(dweetURL)
+        .then(res => res.json())
+        .then(data => {
+          if (data.this === "succeeded" && data.with.length > 0) {
+            const temp = data.with[0].content.temperatura;
+            if (typeof temp === 'number') {
+              document.getElementById('tempDisplay').innerText = temp.toFixed(1) + " °C";
+              document.getElementById('status').innerText = "Actualizado: " + new Date().toLocaleTimeString();
+              return;
+            }
+          }
+          throw new Error("Dato no disponible");
+        })
+        .catch(() => {
+          document.getElementById('tempDisplay').innerText = "--.- °C";
+          document.getElementById('status').innerText = "Esperando datos del sensor...";
+        });
+    }
+
+    actualizar();
+    setInterval(actualizar, 15000); // actualiza cada 15 segundos
+  </script>
+</body>
+</html>
